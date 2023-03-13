@@ -35,7 +35,7 @@ export default {
         fetch('https://min-api.cryptocompare.com/data/v2/histoday?fsym=BTC&tsym=USD&limit=100&api_key=8ae55d463e1bf8d38b4a502ca47512f9b1dec21533ad9af7acb993e8ba952bc2')
             .then(response => response.json())
             .then(data => {
-                this.listItem = data.Data.Data
+                this.listItem = data.Data.Data.reverse()
             })
         }
     },
@@ -49,7 +49,7 @@ export default {
             const numberOfItems = this.listItem.length;
             const itemsPerPage = 20;
             const numberOfPages = Math.ceil(numberOfItems / itemsPerPage);
-            return Array.from({ length: numberOfPages }, (_, i) => i + 1);
+            return Array.from({ length: numberOfPages }, (current, i) => i + 1);
         }
     },
     mounted(){
@@ -101,6 +101,11 @@ export default {
         padding-left: 10%;
         padding-right: 10%;
         border-radius: 50px;
+        transition: 0.5s;
+    }
+
+    .table-item:hover {
+        background-color: #270033;
     }
 
     hr {
