@@ -1,6 +1,6 @@
 
 <template>
-    <div class="table">
+    <div class="table" v-if="okStatus">
         <div class="table-header">
             <p><b>Date</b></p>
             <p><b>High</b></p>
@@ -8,18 +8,19 @@
             <p><b>Close</b></p>
         </div>
         <hr/>
-        <div v-for="item in displayedItems" :key="item.time" class="table-item">
+        <div  v-for="item in displayedItems" :key="item.time" class="table-item">
             <p class="item-date">{{ new Date(item.time * 1000).toLocaleDateString() }}</p>
             <p class="item-high">{{ item.high }}</p>
             <p class="item-low">{{ item.low }}</p>
             <p class="item-close">{{ item.close }}</p>
         </div>
         <div class="pagination">
-            <button class="pagination-btn-lastnext" v-if="currentPage > 1" @click="currentPage--">Forrige</button>
-            <button class="pagination-btn" v-for="page in pages" :key="page" @click="currentPage = page">{{ page }}</button>
-            <button class="pagination-btn-lastnext" v-if="currentPage < pages.length" @click="currentPage++">Neste</button>
+            <button class="pagination-btn-lastnext" v-if="currentPage > 1" @click="currentPage--">Last</button>
+            <button class="pagination-btn" :class="{activePage: currentPage == page}" v-for="page in pages" :key="page" @click="currentPage = page">{{ page }}</button>
+            <button class="pagination-btn-lastnext" v-if="currentPage < pages.length" @click="currentPage++">Next</button>
         </div>
     </div>
+    <h2 v-else-if="!okStatus" class="error-message">Error fetching table items: {{ errorMessage }}</h2>
 </template>
 
 <script>
@@ -27,17 +28,25 @@ export default {
     data() {
         return {
             listItem: [],
-            currentPage: 1
+            currentPage: 1,
+            okStatus: false,
+            errorMessage: ''
         }
     },
     methods: {
         getListItems(){
-        fetch('https://min-api.cryptocompare.com/data/v2/histoday?fsym=BTC&tsym=USD&limit=100&api_key=8ae55d463e1bf8d38b4a502ca47512f9b1dec21533ad9af7acb993e8ba952bc2')
+        fetch('https://min-api.cryptocompare.com/data/v2/histoday?fsym=BTC&tsym=USD&limit=100')
             .then(response => response.json())
             .then(data => {
                 this.listItem = data.Data.Data.reverse()
+                this.okStatus = true;
+                console.log(this.okStatus)
             })
-        }
+            .catch( error => {this.okStatus = false
+            console.log(this.okStatus)
+            this.errorMessage = error
+            console.log(this.errorMessage)})
+        },
     },
     computed: {
         displayedItems() {
@@ -75,6 +84,21 @@ export default {
         background-image: url('../assets/mesh-52.png');
         background-size: cover;
         margin-bottom: 100px;
+    }
+
+    .activePage {
+        background-color: #b10eb7;
+    }
+
+    .error-message {
+        margin: auto;
+        text-align: center;
+        color: white;
+        background-color: #b10eb770;
+        line-height: 2;
+        width: 400px;
+        padding: 50px;
+        border-radius: 10px;
     }
 
     .table-header {
@@ -160,6 +184,10 @@ export default {
         transition: 0.5s;
         text-align: center;
         
+    }
+
+    .activePage {
+        background-color: #b10eb7;
     }
 
     .pagination-btn:hover, .pagination-btn-lastnext:hover {
